@@ -1,0 +1,35 @@
+{
+    "name": "ChatMessage",
+    "type": "object",
+    "properties": {
+        "session_id": {
+            "type": "string",
+            "description": "Unique chat session identifier"
+        },
+        "sender_type": {
+            "type": "string",
+            "enum": [
+                "customer",
+                "support"
+            ],
+            "description": "Who sent the message"
+        },
+        "sender_email": {
+            "type": "string",
+            "description": "Email of the sender"
+        },
+        "message": {
+            "type": "string",
+            "description": "Message content"
+        },
+        "is_read": {
+            "type": "boolean",
+            "default": false
+        }
+    },
+    "required": [
+        "session_id",
+        "sender_type",
+        "message"
+    ]
+}

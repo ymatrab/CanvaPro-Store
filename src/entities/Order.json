@@ -1,0 +1,64 @@
+{
+    "name": "Order",
+    "type": "object",
+    "properties": {
+        "customer_email": {
+            "type": "string",
+            "description": "Customer's email address"
+        },
+        "customer_name": {
+            "type": "string",
+            "description": "Customer's full name"
+        },
+        "package_type": {
+            "type": "string",
+            "enum": [
+                "team_invitation",
+                "custom_email"
+            ],
+            "description": "Type of upgrade package"
+        },
+        "plan_duration": {
+            "type": "string",
+            "enum": [
+                "1_month",
+                "3_months",
+                "6_months",
+                "12_months"
+            ],
+            "description": "Subscription duration"
+        },
+        "price": {
+            "type": "number",
+            "description": "Total price paid"
+        },
+        "status": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "processing",
+                "completed",
+                "cancelled"
+            ],
+            "default": "pending"
+        },
+        "canva_email": {
+            "type": "string",
+            "description": "Email to upgrade (for custom email method)"
+        },
+        "notes": {
+            "type": "string",
+            "description": "Additional notes or instructions"
+        },
+        "payment_method": {
+            "type": "string",
+            "description": "Payment method used"
+        }
+    },
+    "required": [
+        "customer_email",
+        "package_type",
+        "plan_duration",
+        "price"
+    ]
+}

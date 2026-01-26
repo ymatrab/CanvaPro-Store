@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand Colors (Dark Mode Default) */
+    --background: 245 30% 8%;
+    /* #0F0F1A (Hero Background) */
+    --foreground: 210 40% 98%;
+
+    --card: 246 33% 5%;
+    /* #0A0A12 (Pricing/Testimonial Background) - slightly darker for contrast */
+    --card-foreground: 210 40% 98%;
+
+    --popover: 245 30% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 262 83% 58%;
+    /* Violet 600 */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 189 94% 43%;
+    /* Cyan 500 */
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    /* Gray 800/50 approximated */
+    --muted-foreground: 215 20% 65%;
+    /* Gray 400 */
+
+    --accent: 262 83% 58%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    /* Gray 800/50 */
+    --input: 217 33% 17%;
+    --ring: 262 83% 58%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar specific variables for shadcn sidebar */
+    --sidebar-background: 245 30% 8%;
+    /* #0F0F1A */
+    --sidebar-foreground: 240 5% 90%;
+    --sidebar-primary: 262 83% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 262 83% 58%;
+    /* Violet for active state */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 262 83% 58%;
+
+    /* Chart Colors for Dashboards */
+    --chart-1: 262 83% 58%;
+    /* Violet */
+    --chart-2: 189 94% 43%;
+    /* Cyan */
+    --chart-3: 35 92% 50%;
+    /* Amber (Reviews/Stars) */
+    --chart-4: 142 71% 45%;
+    /* Green (Success) */
+    --chart-5: 340 75% 55%;
+  }
+
+  .dark {
+    /* Identical to :root to enforce dark theme */
+    --background: 245 30% 8%;
+    --foreground: 210 40% 98%;
+
+    --card: 246 33% 5%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 245 30% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 262 83% 58%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 189 94% 43%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 262 83% 58%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 262 83% 58%;
+
+    --sidebar-background: 245 30% 8%;
+    --sidebar-foreground: 240 5% 90%;
+    --sidebar-primary: 262 83% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 262 83% 58%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 262 83% 58%;
+
+    --chart-1: 262 83% 58%;
+    --chart-2: 189 94% 43%;
+    --chart-3: 35 92% 50%;
+    --chart-4: 142 71% 45%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
