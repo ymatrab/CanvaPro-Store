@@ -39,9 +39,9 @@ Follow these steps to deploy this project to Cloudflare's global edge network:
 2.  Navigate to **Workers & Pages** > **Create Application** > **Pages** > **Connect to Git**.
 3.  Select the repository: `CanvaPro-Store`.
 4.  **Configure Build Settings**:
-    -   **Framework Preset**: Select `Next.js (Static HTML Export)` or standard `Next.js` depending on your rendering needs.
+    -   **Framework Preset**: Select `Next.js (Static HTML Export)` or `None`.
     -   **Build Command**: `npm run build`
-    -   **Output Directory**: `.next` (or `out` if using static export)
+    -   **Build output directory**: `out`
 5.  **Environment Variables** (Optional):
     -   Add any API keys or secrets here if needed in the future.
 6.  Click **Save and Deploy**.
