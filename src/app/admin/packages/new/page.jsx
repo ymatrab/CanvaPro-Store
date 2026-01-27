@@ -71,7 +71,7 @@ export default function NewPackagePage() {
             router.refresh();
         } catch (error) {
             console.error("Failed to create package:", error);
-            alert("Failed to create package. ID might already exist.");
+            alert(`Failed to create package: ${error.message}`);
         } finally {
             setLoading(false)
         }
