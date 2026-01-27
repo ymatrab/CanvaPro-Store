@@ -1,7 +1,11 @@
 import { getRequestContext } from '@cloudflare/next-on-pages';
 
 export async function getDb() {
+    // In local development (next dev), getRequestContext might throw or return undefined for env
+    // We try/catch specifically for the context retrieval to prevent crashes
     try {
+        // Only attempt to get context if we are likely in a Cloudflare environment or compatible shim
+        // However, next-on-pages should provide a shim, but it can fail if not configured efficiently.
         const { env } = getRequestContext();
         if (!env?.DB) {
             console.error("[DB] getRequestContext succeeded but env.DB is undefined");
@@ -10,14 +14,14 @@ export async function getDb() {
         console.log("[DB] Successfully got DB from getRequestContext");
         return env.DB;
     } catch (e) {
-        console.error("[DB] getRequestContext failed:", e.message);
+        console.error("[DB] getRequestContext failed (expected in local non-wrangler dev):", e.message);
         // Fallback for local development if not running in pages dev
         if (process.env.DB) {
             console.log("[DB] Using process.env.DB fallback");
             return process.env.DB;
         }
         console.warn("[DB] Could not retrieve DB binding via getRequestContext or process.env");
-        return null;
+        return null; // Return null so calling code can handle "no db" gracefully
     }
 }
 
