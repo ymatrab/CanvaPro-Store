@@ -28,60 +28,41 @@ import {
 } from "@/components/ui/card"
 import { MoreHorizontal, Star, CheckCircle, XCircle } from "lucide-react"
 
-const reviews = [
-    {
-        id: "REV-001",
-        name: 'Sarah Mitchell',
-        role: 'Freelance Designer',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
-        content: 'Absolutely amazing service! Got my Canva Pro access within 5 minutes. The team invitation method works flawlessly.',
-        rating: 5,
-        status: "Approved",
-        date: "2024-03-10"
-    },
-    {
-        id: "REV-002",
-        name: 'James Rodriguez',
-        role: 'Marketing Manager',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
-        content: 'Been using this for 6 months now. Saved so much money compared to the official subscription. Highly recommended!',
-        rating: 5,
-        status: "Approved",
-        date: "2024-03-09"
-    },
-    {
-        id: "REV-003",
-        name: 'Emily Chen',
-        role: 'Content Creator',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
-        content: 'The custom email upgrade kept all my designs intact. Customer support was super helpful when I had questions.',
-        rating: 4,
-        status: "Pending",
-        date: "2024-03-09"
-    },
-    {
-        id: "REV-004",
-        name: 'Michael Foster',
-        role: 'Small Business Owner',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-        content: 'Best investment for my business. All premium features work perfectly. Will definitely renew!',
-        rating: 5,
-        status: "Approved",
-        date: "2024-03-08"
-    },
-    {
-        id: "REV-005",
-        name: 'Lisa Thompson',
-        role: 'Social Media Manager',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
-        content: 'Lightning fast delivery and excellent customer service. The background remover alone is worth it!',
-        rating: 5,
-        status: "Hidden",
-        date: "2024-03-08"
-    }
-]
+import { getReviews, approveReview, hideReview, deleteReview } from '@/app/actions';
 
 export default function ReviewsPage() {
+    const [reviews, setReviews] = React.useState([]);
+
+    const fetchReviews = async () => {
+        try {
+            const data = await getReviews();
+            setReviews(data);
+        } catch (error) {
+            console.error("Failed to fetch reviews:", error);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchReviews();
+    }, []);
+
+    const handleApprove = async (id) => {
+        await approveReview(id);
+        fetchReviews();
+    };
+
+    const handleHide = async (id) => {
+        await hideReview(id);
+        fetchReviews();
+    };
+
+    const handleDelete = async (id) => {
+        if (confirm('Are you sure you want to delete this review?')) {
+            await deleteReview(id);
+            fetchReviews();
+        }
+    };
+
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between">
@@ -156,14 +137,14 @@ export default function ReviewsPage() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="bg-[#0f0f1a] border-white/10 text-white">
                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                <DropdownMenuItem className="focus:bg-white/5 focus:text-white">
+                                                <DropdownMenuItem className="focus:bg-white/5 focus:text-white" onClick={() => handleApprove(review.id)}>
                                                     <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> Approve
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className="focus:bg-white/5 focus:text-white">
+                                                <DropdownMenuItem className="focus:bg-white/5 focus:text-white" onClick={() => handleHide(review.id)}>
                                                     <XCircle className="mr-2 h-4 w-4 text-red-500" /> Hide
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-white/10" />
-                                                <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400">Delete</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400" onClick={() => handleDelete(review.id)}>Delete</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

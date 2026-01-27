@@ -30,60 +30,31 @@ import {
 } from "@/components/ui/card"
 import { ChevronDown, MoreHorizontal, Search, ShoppingCart } from "lucide-react"
 
-const orders = [
-    {
-        id: "ORD-001",
-        customer: "Liam Johnson",
-        email: "liam@example.com",
-        package: "Team Invitation",
-        amount: 39.99,
-        status: "Completed",
-        date: "2024-03-10",
-        method: "Credit Card"
-    },
-    {
-        id: "ORD-002",
-        customer: "Olivia Smith",
-        email: "olivia@example.com",
-        package: "Custom Email",
-        amount: 19.99,
-        status: "Processing",
-        date: "2024-03-09",
-        method: "PayPal"
-    },
-    {
-        id: "ORD-003",
-        customer: "Noah Williams",
-        email: "noah@example.com",
-        package: "Team Invitation",
-        amount: 4.99,
-        status: "Completed",
-        date: "2024-03-09",
-        method: "Credit Card"
-    },
-    {
-        id: "ORD-004",
-        customer: "Emma Brown",
-        email: "emma@example.com",
-        package: "Custom Email",
-        amount: 59.99,
-        status: "Failed",
-        date: "2024-03-08",
-        method: "Credit Card"
-    },
-    {
-        id: "ORD-005",
-        customer: "Ava Jones",
-        email: "ava@example.com",
-        package: "Team Invitation",
-        amount: 22.99,
-        status: "Completed",
-        date: "2024-03-08",
-        method: "PayPal"
-    },
-]
+import { getOrders, refundOrder } from '@/app/actions';
 
 export default function OrdersPage() {
+    const [orders, setOrders] = React.useState([]);
+
+    React.useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const data = await getOrders();
+                setOrders(data);
+            } catch (error) {
+                console.error("Failed to fetch orders:", error);
+            }
+        };
+        fetchOrders();
+    }, []);
+
+    const handleRefund = async (id) => {
+        if (confirm('Are you sure you want to refund this order?')) {
+            await refundOrder(id);
+            // Refresh orders
+            const data = await getOrders();
+            setOrders(data);
+        }
+    };
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between">
@@ -145,14 +116,14 @@ export default function OrdersPage() {
                                     <TableCell className="font-medium text-violet-300">{order.id}</TableCell>
                                     <TableCell>
                                         <div className="flex flex-col">
-                                            <span className="text-white font-medium">{order.customer}</span>
-                                            <span className="text-xs text-gray-400">{order.email}</span>
+                                            <span className="text-white font-medium">{order.customer_name}</span>
+                                            <span className="text-xs text-gray-400">{order.customer_email}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell className="hidden md:table-cell text-gray-300">
                                         <div className="flex items-center gap-2">
                                             <ShoppingCart className="w-3 h-3 text-gray-500" />
-                                            {order.package}
+                                            {order.package_name}
                                         </div>
                                     </TableCell>
                                     <TableCell className="hidden md:table-cell text-gray-400">{order.date}</TableCell>
@@ -187,7 +158,7 @@ export default function OrdersPage() {
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-white/10" />
                                                 <DropdownMenuItem className="focus:bg-white/5 focus:text-white">View Details</DropdownMenuItem>
-                                                <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400">Refund Order</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400" onClick={() => handleRefund(order.id)}>Refund Order</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

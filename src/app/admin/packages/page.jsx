@@ -29,74 +29,32 @@ import { MoreHorizontal, Plus, Package } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 // Mock data based on the checkout page
-const initialPackages = [
-    {
-        id: "team_1_month",
-        name: "Team Invitation",
-        duration: "1 Month",
-        price: 4.99,
-        status: "Active",
-        type: "team_invitation"
-    },
-    {
-        id: "team_3_months",
-        name: "Team Invitation",
-        duration: "3 Months",
-        price: 12.99,
-        status: "Active",
-        type: "team_invitation"
-    },
-    {
-        id: "team_6_months",
-        name: "Team Invitation",
-        duration: "6 Months",
-        price: 22.99,
-        status: "Active",
-        type: "team_invitation"
-    },
-    {
-        id: "team_12_months",
-        name: "Team Invitation",
-        duration: "12 Months",
-        price: 39.99,
-        status: "Best Value",
-        type: "team_invitation"
-    },
-    {
-        id: "custom_1_month",
-        name: "Custom Email",
-        duration: "1 Month",
-        price: 7.99,
-        status: "Active",
-        type: "custom_email"
-    },
-    {
-        id: "custom_3_months",
-        name: "Custom Email",
-        duration: "3 Months",
-        price: 19.99,
-        status: "Active",
-        type: "custom_email"
-    },
-    {
-        id: "custom_6_months",
-        name: "Custom Email",
-        duration: "6 Months",
-        price: 34.99,
-        status: "Active",
-        type: "custom_email"
-    },
-    {
-        id: "custom_12_months",
-        name: "Custom Email",
-        duration: "12 Months",
-        price: 59.99,
-        status: "Active",
-        type: "custom_email"
-    }
-]
+import { getPackages, deletePackage } from '@/app/actions';
+import { useRouter } from 'next/navigation';
 
 export default function PackagesPage() {
+    const [packages, setPackages] = React.useState([]);
+    const router = useRouter();
+
+    const fetchPackages = async () => {
+        try {
+            const data = await getPackages();
+            setPackages(data);
+        } catch (error) {
+            console.error("Failed to fetch packages:", error);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchPackages();
+    }, []);
+
+    const handleDelete = async (id) => {
+        if (confirm('Are you sure you want to delete this package?')) {
+            await deletePackage(id);
+            fetchPackages();
+        }
+    };
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between">
@@ -131,7 +89,7 @@ export default function PackagesPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {initialPackages.map((pkg) => (
+                            {packages.map((pkg) => (
                                 <TableRow key={pkg.id} className="border-white/10 hover:bg-white/5 data-[state=selected]:bg-white/10 transition-colors">
                                     <TableCell className="font-medium text-white">
                                         <div className="flex items-center gap-3">
@@ -167,7 +125,7 @@ export default function PackagesPage() {
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-white/10" />
                                                 <DropdownMenuItem className="focus:bg-white/5 focus:text-white">Edit</DropdownMenuItem>
-                                                <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400">Delete</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400" onClick={() => handleDelete(pkg.id)}>Delete</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

@@ -6,21 +6,6 @@ import { Check, Sparkles, Users, Mail, ArrowRight, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { createPageUrl } from '@/lib/utils';
 
-const pricingPlans = {
-    team_invitation: [
-        { duration: '1_month', label: '1 Month', price: 4.99, originalPrice: 12.99, savings: '62%' },
-        { duration: '3_months', label: '3 Months', price: 12.99, originalPrice: 38.97, savings: '67%', popular: true },
-        { duration: '6_months', label: '6 Months', price: 22.99, originalPrice: 77.94, savings: '71%' },
-        { duration: '12_months', label: '12 Months', price: 39.99, originalPrice: 155.88, savings: '74%', bestValue: true }
-    ],
-    custom_email: [
-        { duration: '1_month', label: '1 Month', price: 7.99, originalPrice: 12.99, savings: '38%' },
-        { duration: '3_months', label: '3 Months', price: 19.99, originalPrice: 38.97, savings: '49%', popular: true },
-        { duration: '6_months', label: '6 Months', price: 34.99, originalPrice: 77.94, savings: '55%' },
-        { duration: '12_months', label: '12 Months', price: 59.99, originalPrice: 155.88, savings: '62%', bestValue: true }
-    ]
-};
-
 const features = [
     'All Premium Templates',
     'Background Remover',
@@ -32,8 +17,11 @@ const features = [
     'Social Media Scheduler'
 ];
 
+import { getPackages } from '@/app/actions';
+
 export default function PricingSection() {
     const [selectedMethod, setSelectedMethod] = useState('team_invitation');
+    const [pricingPlans, setPricingPlans] = useState({ team_invitation: [], custom_email: [] });
 
     React.useEffect(() => {
         const handleSwitch = (e) => {
@@ -41,6 +29,41 @@ export default function PricingSection() {
         };
         window.addEventListener('switchPricingMethod', handleSwitch);
         return () => window.removeEventListener('switchPricingMethod', handleSwitch);
+    }, []);
+
+    React.useEffect(() => {
+        async function fetchPackages() {
+            try {
+                const packages = await getPackages();
+                if (!packages || packages.length === 0) return;
+
+                const plans = {
+                    team_invitation: packages.filter(p => p.type === 'team_invitation'),
+                    custom_email: packages.filter(p => p.type === 'custom_email')
+                };
+                // Ensure correct structure if needed or just use as is if schema matches props
+                // The schema matches well (duration, price, etc.)
+                // Just mapping id to duration key if strictly needed by UI but looks like it uses plan.duration
+                // Map snake_case to camelCase specific fields if db returns snake_case but schema uses camelCase-ish names?
+                // detailed check: db cols: id, name, duration, price, original_price, savings, status, type, popular, best_value
+                // JS code expects: duration, label, price, originalPrice, savings, popular, bestValue (camelCase)
+
+                const transform = (pkgs) => pkgs.map(p => ({
+                    ...p,
+                    originalPrice: p.original_price,
+                    bestValue: p.best_value,
+                    label: p.duration // The DB has duration as "1 Month", JS code expects label="1 Month", duration="1_month" or unique key
+                }));
+
+                setPricingPlans({
+                    team_invitation: transform(plans.team_invitation),
+                    custom_email: transform(plans.custom_email)
+                });
+            } catch (err) {
+                console.error("Failed to fetch packages", err);
+            }
+        }
+        fetchPackages();
     }, []);
 
     return (

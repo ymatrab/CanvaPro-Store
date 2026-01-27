@@ -2,52 +2,27 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, Quote, Shield } from 'lucide-react';
 
-const testimonials = [
-    {
-        name: 'Sarah Mitchell',
-        role: 'Freelance Designer',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
-        content: 'Absolutely amazing service! Got my Canva Pro access within 5 minutes. The team invitation method works flawlessly.',
-        rating: 5
-    },
-    {
-        name: 'James Rodriguez',
-        role: 'Marketing Manager',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
-        content: 'Been using this for 6 months now. Saved so much money compared to the official subscription. Highly recommended!',
-        rating: 5
-    },
-    {
-        name: 'Emily Chen',
-        role: 'Content Creator',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
-        content: 'The custom email upgrade kept all my designs intact. Customer support was super helpful when I had questions.',
-        rating: 5
-    },
-    {
-        name: 'Michael Foster',
-        role: 'Small Business Owner',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-        content: 'Best investment for my business. All premium features work perfectly. Will definitely renew!',
-        rating: 5
-    },
-    {
-        name: 'Lisa Thompson',
-        role: 'Social Media Manager',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
-        content: 'Lightning fast delivery and excellent customer service. The background remover alone is worth it!',
-        rating: 5
-    },
-    {
-        name: 'David Park',
-        role: 'Graphic Designer',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
-        content: 'Professional service at an unbeatable price. Switched from official Canva Pro and couldn\'t be happier.',
-        rating: 5
-    }
-];
+import { getReviews } from '@/app/actions';
 
 export default function Testimonials() {
+    const [testimonials, setTestimonials] = React.useState([]);
+
+    React.useEffect(() => {
+        async function fetchReviews() {
+            try {
+                const fetchedReviews = await getReviews();
+                if (fetchedReviews) {
+                    // Filter mainly approved reviews if that logic is desired, currently keeping all or filtering in UI?
+                    // Usually we only show Approved reviews on front page
+                    const approved = fetchedReviews.filter(r => r.status === 'Approved');
+                    setTestimonials(approved);
+                }
+            } catch (err) {
+                console.error("Failed to fetch reviews", err);
+            }
+        }
+        fetchReviews();
+    }, []);
     return (
         <section className="relative py-32 bg-[#0A0A12] overflow-hidden">
             {/* Background */}

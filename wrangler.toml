@@ -1,0 +1,8 @@
+name = "canva-pro"
+pages_build_output_dir = ".vercel/output/static"
+compatibility_date = "2024-03-20"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "canvapro-db"
+database_id = "de994af4-8766-4888-a5e1-282c09a6b62e"
