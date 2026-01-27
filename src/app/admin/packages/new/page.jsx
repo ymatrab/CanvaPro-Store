@@ -50,8 +50,8 @@ export default function NewPackagePage() {
                 "12_months": "12 Months"
             };
 
-            const typePrefix = formData.type === "team_invitation" ? "team" : "custom";
-            const id = `${typePrefix}_${formData.duration}`;
+            // Use random UUID to avoid collisions
+            const id = crypto.randomUUID();
 
             const pkg = {
                 id,

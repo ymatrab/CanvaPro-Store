@@ -120,8 +120,8 @@ export default function PackagesPage() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="bg-[#0f0f1a] border-white/10 text-white">
                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                <DropdownMenuItem className="focus:bg-white/5 focus:text-white" onClick={() => navigator.clipboard.writeText("https://canvapro.com/checkout?method=" + pkg.type + "&duration=" + pkg.id.split('_').slice(1).join('_'))}>
-                                                    Copy Payment Link
+                                                <DropdownMenuItem className="focus:bg-white/5 focus:text-white" onClick={() => navigator.clipboard.writeText("https://canvapro.com/checkout?method=" + pkg.type + "&duration=" + pkg.duration)}>
+                                                    Copy Checkout Link
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-white/10" />
                                                 <DropdownMenuItem className="focus:bg-white/5 focus:text-white">Edit</DropdownMenuItem>

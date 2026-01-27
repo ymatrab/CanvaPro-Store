@@ -14,30 +14,19 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { createPageUrl } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
-
-const pricingPlans = {
-    team_invitation: [
-        { duration: '1_month', label: '1 Month', price: 4.99 },
-        { duration: '3_months', label: '3 Months', price: 12.99 },
-        { duration: '6_months', label: '6 Months', price: 22.99 },
-        { duration: '12_months', label: '12 Months', price: 39.99 }
-    ],
-    custom_email: [
-        { duration: '1_month', label: '1 Month', price: 7.99 },
-        { duration: '3_months', label: '3 Months', price: 19.99 },
-        { duration: '6_months', label: '6 Months', price: 34.99 },
-        { duration: '12_months', label: '12 Months', price: 59.99 }
-    ]
-};
+import { getPackages } from '@/app/actions';
 
 function CheckoutContent() {
     const searchParams = useSearchParams();
     const initialMethod = searchParams.get('method') || 'team_invitation';
-    const initialDuration = searchParams.get('duration') || '3_months';
+    const initialDuration = searchParams.get('duration') || '1 Month'; // Default to "1 Month" string to match DB
 
     const [step, setStep] = useState(1);
     const [selectedMethod, setSelectedMethod] = useState(initialMethod);
     const [selectedDuration, setSelectedDuration] = useState(initialDuration);
+    const [packages, setPackages] = useState({ team_invitation: [], custom_email: [] });
+    const [loadingPackages, setLoadingPackages] = useState(true);
+
     const [formData, setFormData] = useState({
         customer_name: '',
         customer_email: '',
@@ -49,7 +38,39 @@ function CheckoutContent() {
     const [orderComplete, setOrderComplete] = useState(false);
     const [orderId, setOrderId] = useState(null);
 
-    const currentPlan = pricingPlans[selectedMethod]?.find(p => p.duration === selectedDuration) || pricingPlans[selectedMethod][0];
+    useEffect(() => {
+        async function fetchPackages() {
+            try {
+                const data = await getPackages();
+                if (data) {
+                    const grouped = {
+                        team_invitation: data.filter(p => p.type === 'team_invitation').map(p => ({
+                            ...p,
+                            label: p.duration // DB duration is "1 Month"
+                        })).sort((a, b) => a.price - b.price),
+                        custom_email: data.filter(p => p.type === 'custom_email').map(p => ({
+                            ...p,
+                            label: p.duration
+                        })).sort((a, b) => a.price - b.price)
+                    };
+                    setPackages(grouped);
+
+                    // If selectedDuration comes from URL as "1_month" (legacy), try to map it?
+                    // But we assumed we fixed upstream to send "1 Month".
+                    // Just in case, if exact match fails, try finding by normalized string??
+                    // For now, assume exact match.
+                }
+            } catch (error) {
+                console.error("Failed to fetch packages:", error);
+            } finally {
+                setLoadingPackages(false);
+            }
+        }
+        fetchPackages();
+    }, []);
+
+    const currentPlans = packages[selectedMethod] || [];
+    const currentPlan = currentPlans.find(p => p.duration === selectedDuration) || currentPlans[0];
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -217,27 +238,35 @@ function CheckoutContent() {
                                     {/* Duration Selection */}
                                     <div>
                                         <Label className="text-gray-300 mb-4 block">Duration</Label>
-                                        <RadioGroup value={selectedDuration} onValueChange={setSelectedDuration} className="grid sm:grid-cols-2 gap-4">
-                                            {pricingPlans[selectedMethod].map((plan) => (
-                                                <div key={plan.duration}>
-                                                    <RadioGroupItem
-                                                        value={plan.duration}
-                                                        id={plan.duration}
-                                                        className="peer sr-only"
-                                                    />
-                                                    <Label
-                                                        htmlFor={plan.duration}
-                                                        className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${selectedDuration === plan.duration
-                                                            ? 'border-violet-500 bg-violet-500/10'
-                                                            : 'border-gray-700 hover:border-gray-600'
-                                                            }`}
-                                                    >
-                                                        <span className="text-white font-medium">{plan.label}</span>
-                                                        <span className="text-xl font-bold text-white">${plan.price.toFixed(2)}</span>
-                                                    </Label>
-                                                </div>
-                                            ))}
-                                        </RadioGroup>
+                                        {loadingPackages ? (
+                                            <div className="text-gray-400">Loading plans...</div>
+                                        ) : (
+                                            <RadioGroup value={selectedDuration} onValueChange={setSelectedDuration} className="grid sm:grid-cols-2 gap-4">
+                                                {packages[selectedMethod] && packages[selectedMethod].length > 0 ? (
+                                                    packages[selectedMethod].map((plan) => (
+                                                        <div key={plan.id}>
+                                                            <RadioGroupItem
+                                                                value={plan.duration}
+                                                                id={plan.id}
+                                                                className="peer sr-only"
+                                                            />
+                                                            <Label
+                                                                htmlFor={plan.id}
+                                                                className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${selectedDuration === plan.duration
+                                                                    ? 'border-violet-500 bg-violet-500/10'
+                                                                    : 'border-gray-700 hover:border-gray-600'
+                                                                    }`}
+                                                            >
+                                                                <span className="text-white font-medium">{plan.label}</span>
+                                                                <span className="text-xl font-bold text-white">${plan.price.toFixed(2)}</span>
+                                                            </Label>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="text-gray-400 col-span-2">No plans available for this method.</div>
+                                                )}
+                                            </RadioGroup>
+                                        )}
                                     </div>
 
                                     <Button
