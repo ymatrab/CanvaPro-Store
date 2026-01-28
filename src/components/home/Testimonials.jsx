@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, Quote, Shield } from 'lucide-react';
 
-import { getReviews } from '@/app/actions';
+
 
 export default function Testimonials() {
     const [testimonials, setTestimonials] = React.useState([]);
@@ -10,10 +10,10 @@ export default function Testimonials() {
     React.useEffect(() => {
         async function fetchReviews() {
             try {
-                const fetchedReviews = await getReviews();
+                const response = await fetch('/api/reviews');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const fetchedReviews = await response.json();
                 if (fetchedReviews) {
-                    // Filter mainly approved reviews if that logic is desired, currently keeping all or filtering in UI?
-                    // Usually we only show Approved reviews on front page
                     const approved = fetchedReviews.filter(r => r.status === 'Approved');
                     setTestimonials(approved);
                 }

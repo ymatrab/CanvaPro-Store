@@ -17,7 +17,7 @@ const features = [
     'Social Media Scheduler'
 ];
 
-import { getPackages } from '@/app/actions';
+
 
 export default function PricingSection() {
     const [selectedMethod, setSelectedMethod] = useState('team_invitation');
@@ -34,7 +34,9 @@ export default function PricingSection() {
     React.useEffect(() => {
         async function fetchPackages() {
             try {
-                const packages = await getPackages();
+                const response = await fetch('/api/packages');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const packages = await response.json();
                 if (!packages || packages.length === 0) return;
 
                 const plans = {

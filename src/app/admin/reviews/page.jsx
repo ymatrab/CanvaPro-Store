@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/card"
 import { MoreHorizontal, Star, CheckCircle, XCircle } from "lucide-react"
 
-import { getReviews, approveReview, hideReview, deleteReview } from '@/app/actions';
+
 
 export default function ReviewsPage() {
     const [reviews, setReviews] = React.useState([]);
@@ -39,12 +39,12 @@ export default function ReviewsPage() {
         setLoading(true);
         setError(null);
         try {
-            console.log("[ReviewsPage] Fetching reviews...");
-            const data = await getReviews();
-            console.log("[ReviewsPage] Received data:", data);
+            const response = await fetch('/api/reviews');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
             setReviews(data || []);
         } catch (error) {
-            console.error("[ReviewsPage] Failed to fetch reviews:", error);
+            console.error("Failed to fetch reviews:", error);
             setError(error.message || "Failed to fetch reviews");
         } finally {
             setLoading(false);
@@ -56,18 +56,18 @@ export default function ReviewsPage() {
     }, []);
 
     const handleApprove = async (id) => {
-        await approveReview(id);
+        await fetch(`/api/reviews?id=${id}&action=approve`, { method: 'POST' });
         fetchReviews();
     };
 
     const handleHide = async (id) => {
-        await hideReview(id);
+        await fetch(`/api/reviews?id=${id}&action=hide`, { method: 'POST' });
         fetchReviews();
     };
 
     const handleDelete = async (id) => {
         if (confirm('Are you sure you want to delete this review?')) {
-            await deleteReview(id);
+            await fetch(`/api/reviews?id=${id}`, { method: 'DELETE' });
             fetchReviews();
         }
     };

@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { createPageUrl } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
-import { getPackages } from '@/app/actions';
+
 
 function CheckoutContent() {
     const searchParams = useSearchParams();
@@ -41,7 +41,9 @@ function CheckoutContent() {
     useEffect(() => {
         async function fetchPackages() {
             try {
-                const data = await getPackages();
+                const response = await fetch('/api/packages');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
                 if (data) {
                     const grouped = {
                         team_invitation: data.filter(p => p.type === 'team_invitation').map(p => ({
@@ -54,11 +56,6 @@ function CheckoutContent() {
                         })).sort((a, b) => a.price - b.price)
                     };
                     setPackages(grouped);
-
-                    // If selectedDuration comes from URL as "1_month" (legacy), try to map it?
-                    // But we assumed we fixed upstream to send "1 Month".
-                    // Just in case, if exact match fails, try finding by normalized string??
-                    // For now, assume exact match.
                 }
             } catch (error) {
                 console.error("Failed to fetch packages:", error);

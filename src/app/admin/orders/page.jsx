@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/card"
 import { ChevronDown, MoreHorizontal, Search, ShoppingCart } from "lucide-react"
 
-import { getOrders, refundOrder } from '@/app/actions';
+
 
 export default function OrdersPage() {
     const [orders, setOrders] = React.useState([]);
@@ -41,12 +41,12 @@ export default function OrdersPage() {
         setLoading(true);
         setError(null);
         try {
-            console.log("[OrdersPage] Fetching orders...");
-            const data = await getOrders();
-            console.log("[OrdersPage] Received data:", data);
+            const response = await fetch('/api/orders');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
             setOrders(data || []);
         } catch (error) {
-            console.error("[OrdersPage] Failed to fetch orders:", error);
+            console.error("Failed to fetch orders:", error);
             setError(error.message || "Failed to fetch orders");
         } finally {
             setLoading(false);
@@ -59,7 +59,7 @@ export default function OrdersPage() {
 
     const handleRefund = async (id) => {
         if (confirm('Are you sure you want to refund this order?')) {
-            await refundOrder(id);
+            await fetch(`/api/orders?id=${id}&action=refund`, { method: 'POST' });
             fetchOrders();
         }
     };

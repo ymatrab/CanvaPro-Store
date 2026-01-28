@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createPackage } from "@/app/actions"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -66,7 +66,12 @@ export default function NewPackagePage() {
                 original_price: null // Calculate or input? Left as null for now
             };
 
-            await createPackage(pkg);
+            const response = await fetch('/api/packages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(pkg)
+            });
+            if (!response.ok) throw new Error('Failed to create package');
             router.push("/admin/packages");
             router.refresh();
         } catch (error) {
