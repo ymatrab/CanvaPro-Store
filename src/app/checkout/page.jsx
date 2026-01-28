@@ -8,12 +8,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import {
     Users, Mail, Shield, Zap, CheckCircle, ArrowLeft,
-    CreditCard, Sparkles, Lock, Clock
+    CreditCard, Sparkles, Lock, Clock, ExternalLink
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { createPageUrl } from '@/lib/utils';
-import { base44 } from '@/api/base44Client';
 
 
 function CheckoutContent() {
@@ -77,22 +76,46 @@ function CheckoutContent() {
     const handleSubmit = async () => {
         setIsSubmitting(true);
 
-        const orderData = {
-            customer_email: formData.customer_email,
-            customer_name: formData.customer_name,
-            package_type: selectedMethod,
-            plan_duration: selectedDuration,
-            price: currentPlan.price,
-            status: 'pending',
-            canva_email: selectedMethod === 'custom_email' ? formData.canva_email : '',
-            notes: formData.notes,
-            payment_method: formData.payment_method
-        };
+        try {
+            // Create order via our API
+            const orderData = {
+                customer_email: formData.customer_email,
+                customer_name: formData.customer_name,
+                package_name: `${currentPlan.name} - ${currentPlan.duration}`,
+                package_type: selectedMethod,
+                duration: selectedDuration,
+                amount: currentPlan.price,
+                status: 'Pending',
+                canva_email: selectedMethod === 'custom_email' ? formData.canva_email : '',
+                notes: formData.notes,
+                payment_method: formData.payment_method
+            };
 
-        const order = await base44.entities.Order.create(orderData);
-        setOrderId(order.id);
-        setOrderComplete(true);
-        setIsSubmitting(false);
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+
+            if (!response.ok) throw new Error('Failed to create order');
+            const result = await response.json();
+            setOrderId(result.id);
+
+            // If there's a payment link, redirect to it
+            if (currentPlan.payment_link) {
+                // Open payment link in new tab and show confirmation
+                window.open(currentPlan.payment_link, '_blank');
+                setOrderComplete(true);
+            } else {
+                // No payment link, just mark as pending for manual processing
+                setOrderComplete(true);
+            }
+        } catch (error) {
+            console.error('Checkout error:', error);
+            alert('Failed to process order. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (orderComplete) {

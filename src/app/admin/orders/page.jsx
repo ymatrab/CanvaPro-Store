@@ -28,14 +28,20 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { ChevronDown, MoreHorizontal, Search, ShoppingCart } from "lucide-react"
-
-
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { ChevronDown, MoreHorizontal, Search, ShoppingCart, Trash2 } from "lucide-react"
 
 export default function OrdersPage() {
     const [orders, setOrders] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
+    const [searchTerm, setSearchTerm] = React.useState("");
 
     const fetchOrders = async () => {
         setLoading(true);
@@ -57,12 +63,53 @@ export default function OrdersPage() {
         fetchOrders();
     }, []);
 
-    const handleRefund = async (id) => {
-        if (confirm('Are you sure you want to refund this order?')) {
-            await fetch(`/api/orders?id=${id}&action=refund`, { method: 'POST' });
+    const handleStatusChange = async (id, newStatus) => {
+        try {
+            const response = await fetch(`/api/orders?id=${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            });
+            if (!response.ok) throw new Error('Failed to update status');
             fetchOrders();
+        } catch (error) {
+            console.error('Error updating status:', error);
+            alert('Failed to update order status');
         }
     };
+
+    const handleDelete = async (id) => {
+        if (confirm('Are you sure you want to delete this order?')) {
+            try {
+                const response = await fetch(`/api/orders?id=${id}`, {
+                    method: 'DELETE'
+                });
+                if (!response.ok) throw new Error('Failed to delete order');
+                fetchOrders();
+            } catch (error) {
+                console.error('Error deleting order:', error);
+                alert('Failed to delete order');
+            }
+        }
+    };
+
+    const filteredOrders = orders.filter(order =>
+        order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.customer_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.id?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'Completed': return 'bg-green-500/20 text-green-400 hover:bg-green-500/30';
+            case 'Processing': return 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30';
+            case 'Pending': return 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30';
+            case 'Failed': return 'bg-red-500/20 text-red-400 hover:bg-red-500/30';
+            case 'Refunded': return 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30';
+            default: return 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30';
+        }
+    };
+
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between">
@@ -78,23 +125,11 @@ export default function OrdersPage() {
                 <div className="relative w-full max-w-sm">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
                     <Input
-                        placeholder="Filter orders..."
+                        placeholder="Search orders..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-8 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-violet-500"
                     />
-                </div>
-                <div className="ml-auto">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="ml-auto border-white/10 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-                                Status <ChevronDown className="ml-2 h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-[#0f0f1a] border-white/10 text-white">
-                            <DropdownMenuCheckboxItem checked className="focus:bg-white/5 focus:text-white">Completed</DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem checked className="focus:bg-white/5 focus:text-white">Processing</DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem checked className="focus:bg-white/5 focus:text-white">Failed</DropdownMenuCheckboxItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
                 </div>
             </div>
 
@@ -102,7 +137,7 @@ export default function OrdersPage() {
                 <CardHeader>
                     <CardTitle className="text-xl">Recent Orders</CardTitle>
                     <CardDescription className="text-gray-400">
-                        Manage your latest transactions.
+                        Manage your latest transactions. Click on status to change it.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -118,11 +153,11 @@ export default function OrdersPage() {
                                 Retry
                             </Button>
                         </div>
-                    ) : orders.length === 0 ? (
+                    ) : filteredOrders.length === 0 ? (
                         <div className="text-center py-8">
                             <ShoppingCart className="w-12 h-12 mx-auto text-gray-500 mb-3" />
                             <p className="text-gray-400 mb-2">No orders found</p>
-                            <p className="text-gray-500 text-sm">The database query returned 0 results.</p>
+                            <p className="text-gray-500 text-sm">Orders will appear here after customers complete checkout.</p>
                         </div>
                     ) : (
                         <Table>
@@ -138,7 +173,7 @@ export default function OrdersPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {orders.map((order) => (
+                                {filteredOrders.map((order) => (
                                     <TableRow key={order.id} className="border-white/10 hover:bg-white/5 transition-colors">
                                         <TableCell className="font-medium text-violet-300">{order.id}</TableCell>
                                         <TableCell>
@@ -156,19 +191,21 @@ export default function OrdersPage() {
                                         <TableCell className="hidden md:table-cell text-gray-400">{order.date}</TableCell>
                                         <TableCell className="text-white font-semibold">${order.amount}</TableCell>
                                         <TableCell>
-                                            <Badge
-                                                variant={
-                                                    order.status === "Completed" ? "default" :
-                                                        order.status === "Processing" ? "secondary" : "destructive"
-                                                }
-                                                className={
-                                                    order.status === "Completed" ? "bg-green-500/20 text-green-400 hover:bg-green-500/30 border-0" :
-                                                        order.status === "Processing" ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border-0" :
-                                                            "bg-red-500/20 text-red-400 hover:bg-red-500/30 border-0"
-                                                }
+                                            <Select
+                                                value={order.status}
+                                                onValueChange={(value) => handleStatusChange(order.id, value)}
                                             >
-                                                {order.status}
-                                            </Badge>
+                                                <SelectTrigger className={`w-32 border-0 ${getStatusColor(order.status)}`}>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-[#0f0f1a] border-white/10">
+                                                    <SelectItem value="Pending">Pending</SelectItem>
+                                                    <SelectItem value="Processing">Processing</SelectItem>
+                                                    <SelectItem value="Completed">Completed</SelectItem>
+                                                    <SelectItem value="Failed">Failed</SelectItem>
+                                                    <SelectItem value="Refunded">Refunded</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
@@ -183,9 +220,14 @@ export default function OrdersPage() {
                                                     <DropdownMenuItem className="focus:bg-white/5 focus:text-white" onClick={() => navigator.clipboard.writeText(order.id)}>
                                                         Copy Order ID
                                                     </DropdownMenuItem>
+                                                    <DropdownMenuItem className="focus:bg-white/5 focus:text-white" onClick={() => navigator.clipboard.writeText(order.customer_email)}>
+                                                        Copy Customer Email
+                                                    </DropdownMenuItem>
                                                     <DropdownMenuSeparator className="bg-white/10" />
-                                                    <DropdownMenuItem className="focus:bg-white/5 focus:text-white">View Details</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400" onClick={() => handleRefund(order.id)}>Refund Order</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400" onClick={() => handleDelete(order.id)}>
+                                                        <Trash2 className="w-4 h-4 mr-2" />
+                                                        Delete Order
+                                                    </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
