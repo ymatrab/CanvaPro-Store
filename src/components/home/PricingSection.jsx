@@ -51,8 +51,9 @@ export default function PricingSection() {
                 const transform = (pkgs) => pkgs.map(p => ({
                     ...p,
                     originalPrice: p.original_price,
-                    bestValue: p.status === 'Best Value' || p.best_value,
-                    popular: p.status === 'Popular' || p.popular,
+                    // Only use status field for badges - ignore old popular/best_value columns
+                    bestValue: p.status === 'Best Value',
+                    popular: p.status === 'Popular',
                     label: p.duration
                 }));
 
