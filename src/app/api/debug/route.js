@@ -1,21 +1,32 @@
+import { getRequestContext } from '@cloudflare/next-on-pages';
+
 export const runtime = 'edge';
 
 export async function GET() {
     try {
-        const env = process.env;
-        const globalDB = globalThis.DB;
-        const envDB = process.env.DB;
+        // Check if getRequestContext works
+        let contextInfo = { available: false };
+        try {
+            const ctx = getRequestContext();
+            contextInfo = {
+                available: true,
+                hasEnv: !!ctx?.env,
+                hasDB: !!ctx?.env?.DB,
+                envKeys: ctx?.env ? Object.keys(ctx.env) : []
+            };
+        } catch (e) {
+            contextInfo = { available: false, error: e.message };
+        }
 
         return Response.json({
             status: 'ok',
-            envKeys: Object.keys(env || {}),
-            hasGlobalDB: !!globalDB,
-            hasEnvDB: !!envDB,
-            globalDBType: typeof globalDB,
-            // Don't log the actual object if it's sensitive, but D1 binding structure is safe-ish to check keys
-            dbKeys: globalDB ? Object.keys(globalDB) : null
+            timestamp: new Date().toISOString(),
+            context: contextInfo
         });
     } catch (error) {
-        return Response.json({ error: error.message, stack: error.stack }, { status: 500 });
+        return Response.json({
+            status: 'error',
+            error: error.message
+        }, { status: 500 });
     }
 }

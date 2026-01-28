@@ -1,27 +1,35 @@
-// Helper to execute query
-export async function query(sql, params = []) {
-    console.log("[DB] Executing query:", sql.substring(0, 100), "params:", params);
+import { getRequestContext } from '@cloudflare/next-on-pages';
 
-    // In Cloudflare Pages, we need to access the binding from the platform context
-    // The binding will be available via process.env in the Cloudflare environment
+export function getDb() {
     try {
-        // Try to get DB from global context (Cloudflare Pages Workers)
-        // @ts-ignore - globalThis.DB is injected by Cloudflare
-        const db = globalThis.DB || process.env.DB;
-
-        if (!db) {
-            console.error("[DB] Database binding not found in globalThis or process.env");
-            return [];
+        const ctx = getRequestContext();
+        if (!ctx || !ctx.env || !ctx.env.DB) {
+            console.error('[DB] No DB binding found in request context');
+            return null;
         }
+        return ctx.env.DB;
+    } catch (error) {
+        console.error('[DB] Error getting request context:', error.message);
+        return null;
+    }
+}
 
-        console.log("[DB] Successfully accessed DB binding");
+export async function query(sql, params = []) {
+    const db = getDb();
+
+    if (!db) {
+        console.error('[DB] Database not available - returning empty array');
+        return [];
+    }
+
+    try {
+        console.log('[DB] Executing:', sql.substring(0, 80));
         const stmt = db.prepare(sql).bind(...params);
         const { results } = await stmt.all();
-        console.log("[DB] Query returned", results?.length || 0, "results");
+        console.log('[DB] Returned', results?.length || 0, 'rows');
         return results || [];
     } catch (error) {
-        console.error("[DB] Database query error:", error);
-        // Return empty array instead of throwing to prevent crashes
+        console.error('[DB] Query error:', error.message);
         return [];
     }
 }
