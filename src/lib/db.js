@@ -1,21 +1,21 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { getRequestContext } from '@cloudflare/next-on-pages';
 
-export async function getDb() {
+export function getDb() {
     try {
-        const { env } = await getCloudflareContext();
-        if (!env?.DB) {
-            console.error('[DB] No DB binding found in Cloudflare context');
+        const ctx = getRequestContext();
+        if (!ctx || !ctx.env || !ctx.env.DB) {
+            console.error('[DB] No DB binding found in request context');
             return null;
         }
-        return env.DB;
+        return ctx.env.DB;
     } catch (error) {
-        console.error('[DB] Error getting Cloudflare context:', error.message);
+        console.error('[DB] Error getting request context:', error.message);
         return null;
     }
 }
 
 export async function query(sql, params = []) {
-    const db = await getDb();
+    const db = getDb();
 
     if (!db) {
         console.error('[DB] Database not available - returning empty array');
