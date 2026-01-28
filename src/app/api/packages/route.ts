@@ -31,12 +31,12 @@ export async function POST(request) {
         }
 
         const pkg = await request.json()
-        const { id, name, duration, price, original_price, savings, status, type, popular, best_value } = pkg
+        const { id, name, duration, price, original_price, savings, status, type, popular, best_value, payment_link } = pkg
 
         await db.prepare(
-            `INSERT INTO packages (id, name, duration, price, original_price, savings, status, type, popular, best_value) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-        ).bind(id, name, duration, price, original_price || null, savings || null, status || 'Active', type, popular || 0, best_value || 0).run()
+            `INSERT INTO packages (id, name, duration, price, original_price, savings, status, type, popular, best_value, payment_link) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        ).bind(id, name, duration, price, original_price || null, savings || null, status || 'Active', type, popular || 0, best_value || 0, payment_link || null).run()
 
         return NextResponse.json({ success: true })
     } catch (error) {
@@ -77,15 +77,15 @@ export async function PUT(request) {
         }
 
         const pkg = await request.json()
-        const { id, name, duration, price, original_price, savings, status, type, popular, best_value } = pkg
+        const { id, name, duration, price, original_price, savings, status, type, popular, best_value, payment_link } = pkg
 
         if (!id) {
             return NextResponse.json({ error: "Package ID required" }, { status: 400 })
         }
 
         await db.prepare(
-            `UPDATE packages SET name = ?, duration = ?, price = ?, original_price = ?, savings = ?, status = ?, type = ?, popular = ?, best_value = ? WHERE id = ?`
-        ).bind(name, duration, price, original_price || null, savings || null, status || 'Active', type, popular || 0, best_value || 0, id).run()
+            `UPDATE packages SET name = ?, duration = ?, price = ?, original_price = ?, savings = ?, status = ?, type = ?, popular = ?, best_value = ?, payment_link = ? WHERE id = ?`
+        ).bind(name, duration, price, original_price || null, savings || null, status || 'Active', type, popular || 0, best_value || 0, payment_link || null, id).run()
 
         return NextResponse.json({ success: true })
     } catch (error) {

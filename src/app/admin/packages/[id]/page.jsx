@@ -40,7 +40,8 @@ export default function EditPackagePage() {
         savings: "",
         status: "Active",
         popular: 0,
-        best_value: 0
+        best_value: 0,
+        payment_link: ""
     })
 
     useEffect(() => {
@@ -60,7 +61,8 @@ export default function EditPackagePage() {
                         savings: pkg.savings?.toString() || "",
                         status: pkg.status || "Active",
                         popular: pkg.popular || 0,
-                        best_value: pkg.best_value || 0
+                        best_value: pkg.best_value || 0,
+                        payment_link: pkg.payment_link || ""
                     })
                 }
             } catch (error) {
@@ -75,7 +77,24 @@ export default function EditPackagePage() {
     }, [packageId])
 
     const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }))
+        setFormData(prev => {
+            const newData = { ...prev, [field]: value }
+
+            // Auto-calculate savings when price or original_price changes
+            if (field === 'price' || field === 'original_price') {
+                const price = parseFloat(field === 'price' ? value : prev.price) || 0
+                const originalPrice = parseFloat(field === 'original_price' ? value : prev.original_price) || 0
+
+                if (originalPrice > 0 && price > 0 && originalPrice > price) {
+                    const savingsPercent = Math.round(((originalPrice - price) / originalPrice) * 100)
+                    newData.savings = `${savingsPercent}%`
+                } else {
+                    newData.savings = ""
+                }
+            }
+
+            return newData
+        })
     }
 
     const onSubmit = async (e) => {
@@ -90,10 +109,11 @@ export default function EditPackagePage() {
                 duration: formData.duration,
                 price: parseFloat(formData.price),
                 original_price: formData.original_price ? parseFloat(formData.original_price) : null,
-                savings: formData.savings ? parseFloat(formData.savings) : null,
+                savings: formData.savings || null,
                 status: formData.status,
                 popular: formData.popular,
-                best_value: formData.best_value
+                best_value: formData.best_value,
+                payment_link: formData.payment_link || null
             }
 
             const response = await fetch('/api/packages', {
@@ -181,6 +201,9 @@ export default function EditPackagePage() {
                                         <SelectItem value="3 Months">3 Months</SelectItem>
                                         <SelectItem value="6 Months">6 Months</SelectItem>
                                         <SelectItem value="12 Months">12 Months</SelectItem>
+                                        <SelectItem value="2 Years">2 Years</SelectItem>
+                                        <SelectItem value="5 Years">5 Years</SelectItem>
+                                        <SelectItem value="Lifetime">Lifetime</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -212,17 +235,28 @@ export default function EditPackagePage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="savings" className="text-gray-300">Savings ($)</Label>
+                                <Label htmlFor="savings" className="text-gray-300">Savings</Label>
                                 <Input
                                     id="savings"
-                                    type="number"
-                                    step="0.01"
                                     value={formData.savings}
-                                    onChange={(e) => handleChange('savings', e.target.value)}
                                     className="bg-gray-900 border-gray-700 text-white"
-                                    placeholder="Optional"
+                                    placeholder="Auto-calculated"
+                                    disabled
                                 />
+                                <p className="text-xs text-gray-500">Auto-calculated from prices</p>
                             </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="payment_link" className="text-gray-300">Payment Link</Label>
+                            <Input
+                                id="payment_link"
+                                value={formData.payment_link}
+                                onChange={(e) => handleChange('payment_link', e.target.value)}
+                                placeholder="https://your-payment-link.com"
+                                className="bg-gray-900 border-gray-700 text-white"
+                            />
+                            <p className="text-xs text-gray-500">Stripe, PayPal, or other payment link</p>
                         </div>
 
                         <div className="space-y-2">

@@ -9,7 +9,8 @@ CREATE TABLE packages (
     status TEXT,
     type TEXT NOT NULL,
     popular BOOLEAN DEFAULT 0,
-    best_value BOOLEAN DEFAULT 0
+    best_value BOOLEAN DEFAULT 0,
+    payment_link TEXT
 );
 
 DROP TABLE IF EXISTS reviews;
