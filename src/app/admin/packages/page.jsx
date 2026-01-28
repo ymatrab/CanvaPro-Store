@@ -42,12 +42,17 @@ export default function PackagesPage() {
         setLoading(true);
         setError(null);
         try {
-            console.log("[PackagesPage] Fetching packages...");
+            console.log("[CLIENT] Fetching packages...");
             const data = await getPackages();
-            console.log("[PackagesPage] Received data:", data);
+            console.log("[CLIENT] Received data:", data);
             setPackages(data || []);
         } catch (error) {
-            console.error("[PackagesPage] Failed to fetch packages:", error);
+            console.error("[CLIENT] Failed to fetch packages:", error);
+            console.error("[CLIENT] Error details:", {
+                message: error.message,
+                cause: error.cause,
+                stack: error.stack
+            });
             setError(error.message || "Failed to fetch packages");
         } finally {
             setLoading(false);

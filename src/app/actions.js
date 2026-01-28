@@ -4,7 +4,21 @@ import { query } from '@/lib/db'
 
 // Packages
 export async function getPackages() {
-    return await query(`SELECT * FROM packages ORDER BY price ASC`);
+    try {
+        console.log('[SERVER ACTION] getPackages called');
+        const results = await query(`SELECT * FROM packages ORDER BY price ASC`);
+        console.log('[SERVER ACTION] getPackages success, rows:', results?.length);
+        return results;
+    } catch (error) {
+        console.error('[SERVER ACTION] getPackages ERROR:', error);
+        console.error('[SERVER ACTION] Error details:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
+        // Return error info instead of throwing
+        throw new Error(`Database error: ${error.message}`);
+    }
 }
 
 export async function createPackage(pkg) {
