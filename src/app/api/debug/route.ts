@@ -5,7 +5,7 @@ export const runtime = "edge"
 export async function GET() {
     try {
         // @ts-ignore - DB is injected by Cloudflare
-        const db = process.env.DB as D1Database | undefined
+        const db = process.env.DB
 
         return NextResponse.json({
             status: "ok",
@@ -13,7 +13,7 @@ export async function GET() {
             hasDB: !!db,
             dbType: typeof db
         })
-    } catch (error: any) {
+    } catch (error) {
         return NextResponse.json({
             status: "error",
             error: error.message
