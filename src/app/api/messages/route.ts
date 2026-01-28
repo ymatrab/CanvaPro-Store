@@ -117,15 +117,16 @@ export async function PUT(request) {
         const { searchParams } = new URL(request.url)
         const sessionId = searchParams.get('session_id')
         const markAs = searchParams.get('mark_as') || 'read'
+        const senderType = searchParams.get('sender_type') || 'customer' // Which sender's messages to mark
 
         if (!sessionId) {
             return NextResponse.json({ error: "Session ID required" }, { status: 400 })
         }
 
-        // Mark all customer messages in this session as read
+        // Mark messages from specified sender as read
         await db.prepare(
-            "UPDATE messages SET is_read = ? WHERE session_id = ? AND sender_type = 'customer'"
-        ).bind(markAs === 'read' ? 1 : 0, sessionId).run()
+            "UPDATE messages SET is_read = ? WHERE session_id = ? AND sender_type = ?"
+        ).bind(markAs === 'read' ? 1 : 0, sessionId, senderType).run()
 
         return NextResponse.json({ success: true })
     } catch (error) {

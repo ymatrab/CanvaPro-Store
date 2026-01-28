@@ -88,6 +88,11 @@ export default function LiveChat() {
                                 }))
                             ];
                         });
+
+                        // Mark admin messages as read by customer
+                        await fetch(`/api/messages?session_id=${sessionId}&sender_type=admin&mark_as=read`, {
+                            method: 'PUT'
+                        });
                     }
                 }
             } catch (error) {
@@ -95,6 +100,7 @@ export default function LiveChat() {
             }
         };
 
+        pollMessages(); // Run immediately when chat opens
         const interval = setInterval(pollMessages, 5000);
         return () => clearInterval(interval);
     }, [isOpen, sessionId]);
