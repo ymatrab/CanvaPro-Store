@@ -63,3 +63,36 @@ INSERT INTO orders (id, customer_name, customer_email, package_name, amount, sta
 ('ORD-003', 'Noah Williams', 'noah@example.com', 'Team Invitation', 4.99, 'Completed', '2024-03-09', 'Credit Card'),
 ('ORD-004', 'Emma Brown', 'emma@example.com', 'Custom Email', 59.99, 'Failed', '2024-03-08', 'Credit Card'),
 ('ORD-005', 'Ava Jones', 'ava@example.com', 'Team Invitation', 22.99, 'Completed', '2024-03-08', 'PayPal');
+
+-- Messages Table for Chat System
+DROP TABLE IF EXISTS messages;
+CREATE TABLE messages (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    sender_type TEXT NOT NULL,
+    message TEXT NOT NULL,
+    customer_email TEXT,
+    customer_name TEXT,
+    is_read INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Chat Settings
+DROP TABLE IF EXISTS chat_settings;
+CREATE TABLE chat_settings (
+    id INTEGER PRIMARY KEY,
+    auto_reply_message TEXT DEFAULT 'Thanks for reaching out! Our team typically responds within a few minutes. In the meantime, feel free to browse our pricing options.',
+    auto_reply_enabled INTEGER DEFAULT 1
+);
+
+INSERT INTO chat_settings (id, auto_reply_message, auto_reply_enabled) VALUES
+(1, 'Thanks for reaching out! 👋 Our team typically responds within a few minutes. In the meantime, feel free to browse our pricing options.', 1);
+
+-- Page Views for Analytics
+DROP TABLE IF EXISTS page_views;
+CREATE TABLE page_views (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    page TEXT NOT NULL,
+    visitor_id TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);

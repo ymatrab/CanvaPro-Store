@@ -9,6 +9,7 @@ import {
     Star,
     User,
     Home,
+    MessageCircle,
 } from "lucide-react"
 
 import {
@@ -24,6 +25,7 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from "@/components/ui/sidebar"
+import { Badge } from "@/components/ui/badge"
 
 // Menu items.
 const items = [
@@ -48,6 +50,11 @@ const items = [
         icon: ShoppingCart,
     },
     {
+        title: "Messages",
+        url: "/admin/messages",
+        icon: MessageCircle,
+    },
+    {
         title: "Reviews",
         url: "/admin/reviews",
         icon: Star,
@@ -55,6 +62,24 @@ const items = [
 ]
 
 export function AdminSidebar({ ...props }) {
+    const [unreadCount, setUnreadCount] = React.useState(0);
+
+    React.useEffect(() => {
+        const fetchUnread = async () => {
+            try {
+                const response = await fetch('/api/stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    setUnreadCount(data.unreadMessages || 0);
+                }
+            } catch (error) {
+                console.error('Error fetching unread count:', error);
+            }
+        };
+        fetchUnread();
+        const interval = setInterval(fetchUnread, 30000);
+        return () => clearInterval(interval);
+    }, []);
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
@@ -82,9 +107,16 @@ export function AdminSidebar({ ...props }) {
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild tooltip={item.title}>
-                                        <a href={item.url}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
+                                        <a href={item.url} className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <item.icon />
+                                                <span>{item.title}</span>
+                                            </div>
+                                            {item.title === 'Messages' && unreadCount > 0 && (
+                                                <Badge className="bg-red-500/20 text-red-400 text-xs px-1.5 py-0.5">
+                                                    {unreadCount}
+                                                </Badge>
+                                            )}
                                         </a>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>

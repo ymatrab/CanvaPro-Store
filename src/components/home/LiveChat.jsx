@@ -3,8 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, X, Send, Loader2, Bot, User } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { MessageCircle, X, Send, Loader2, Bot, User, Check, CheckCheck } from 'lucide-react';
 
 export default function LiveChat() {
     const [isOpen, setIsOpen] = useState(false);
@@ -13,12 +12,22 @@ export default function LiveChat() {
             id: 1,
             sender_type: 'support',
             message: 'Hi there! 👋 Welcome to CanvaPro Store. How can I help you today?',
-            timestamp: new Date()
+            timestamp: new Date(),
+            is_read: true
         }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
-    const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+    const [sessionId] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('chat_session_id');
+            if (stored) return stored;
+            const newId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            localStorage.setItem('chat_session_id', newId);
+            return newId;
+        }
+        return `session_${Date.now()}`;
+    });
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -29,6 +38,67 @@ export default function LiveChat() {
         scrollToBottom();
     }, [messages]);
 
+    // Load existing messages on mount
+    useEffect(() => {
+        const loadMessages = async () => {
+            try {
+                const response = await fetch(`/api/messages?session_id=${sessionId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.length > 0) {
+                        setMessages([
+                            {
+                                id: 1,
+                                sender_type: 'support',
+                                message: 'Hi there! 👋 Welcome to CanvaPro Store. How can I help you today?',
+                                timestamp: new Date(),
+                                is_read: true
+                            },
+                            ...data.map(m => ({
+                                ...m,
+                                timestamp: new Date(m.created_at)
+                            }))
+                        ]);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load messages:', error);
+            }
+        };
+        loadMessages();
+    }, [sessionId]);
+
+    // Poll for new messages when chat is open
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const pollMessages = async () => {
+            try {
+                const response = await fetch(`/api/messages?session_id=${sessionId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.length > 0) {
+                        setMessages(prev => {
+                            const welcomeMsg = prev[0];
+                            return [
+                                welcomeMsg,
+                                ...data.map(m => ({
+                                    ...m,
+                                    timestamp: new Date(m.created_at)
+                                }))
+                            ];
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to poll messages:', error);
+            }
+        };
+
+        const interval = setInterval(pollMessages, 5000);
+        return () => clearInterval(interval);
+    }, [isOpen, sessionId]);
+
     const handleSend = async () => {
         if (!inputValue.trim()) return;
 
@@ -36,7 +106,8 @@ export default function LiveChat() {
             id: Date.now(),
             sender_type: 'customer',
             message: inputValue.trim(),
-            timestamp: new Date()
+            timestamp: new Date(),
+            is_read: false
         };
 
         setMessages(prev => [...prev, userMessage]);
@@ -45,35 +116,41 @@ export default function LiveChat() {
 
         // Save to database
         try {
-            await base44.entities.ChatMessage.create({
-                session_id: sessionId,
-                sender_type: 'customer',
-                message: userMessage.message
+            const response = await fetch('/api/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    sender_type: 'customer',
+                    message: userMessage.message
+                })
             });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // If auto-reply was sent, add it to messages
+                if (data.autoReply) {
+                    setTimeout(() => {
+                        setMessages(prev => [...prev, {
+                            id: data.autoReply.id,
+                            sender_type: 'admin',
+                            message: data.autoReply.message,
+                            timestamp: new Date(data.autoReply.created_at),
+                            is_read: true
+                        }]);
+                        setIsTyping(false);
+                    }, 1500);
+                } else {
+                    setIsTyping(false);
+                }
+            } else {
+                setIsTyping(false);
+            }
         } catch (error) {
             console.error('Failed to save message:', error);
-        }
-
-        // Simulate support response
-        setTimeout(() => {
-            const responses = [
-                "Thank you for reaching out! Our team will respond shortly. In the meantime, feel free to browse our pricing options.",
-                "Great question! Both our Team Invitation and Custom Email methods provide full Canva Pro access. Would you like more details?",
-                "I understand your concern. Our service is 100% safe with over 5,000 satisfied customers. Is there anything specific you'd like to know?",
-                "Delivery is typically within minutes for Team Invitation. For Custom Email, it may take up to 24 hours. Would you like to proceed with an order?",
-                "Thanks for your interest! You can choose any plan duration from our pricing section. Let me know if you need help selecting the right option."
-            ];
-
-            const supportMessage = {
-                id: Date.now(),
-                sender_type: 'support',
-                message: responses[Math.floor(Math.random() * responses.length)],
-                timestamp: new Date()
-            };
-
-            setMessages(prev => [...prev, supportMessage]);
             setIsTyping(false);
-        }, 1500);
+        }
     };
 
     const handleKeyPress = (e) => {
@@ -149,11 +226,22 @@ export default function LiveChat() {
                                                 : <Bot className="w-4 h-4 text-cyan-400" />
                                             }
                                         </div>
-                                        <div className={`px-4 py-3 rounded-2xl ${msg.sender_type === 'customer'
-                                            ? 'bg-gradient-to-r from-violet-600 to-violet-500 text-white rounded-br-sm'
-                                            : 'bg-gray-800 text-gray-200 rounded-bl-sm'
-                                            }`}>
-                                            <p className="text-sm leading-relaxed">{msg.message}</p>
+                                        <div>
+                                            <div className={`px-4 py-3 rounded-2xl ${msg.sender_type === 'customer'
+                                                ? 'bg-gradient-to-r from-violet-600 to-violet-500 text-white rounded-br-sm'
+                                                : 'bg-gray-800 text-gray-200 rounded-bl-sm'
+                                                }`}>
+                                                <p className="text-sm leading-relaxed">{msg.message}</p>
+                                            </div>
+                                            {/* Read receipt for customer messages */}
+                                            {msg.sender_type === 'customer' && (
+                                                <div className="flex justify-end mt-1">
+                                                    {msg.is_read
+                                                        ? <CheckCheck className="w-3 h-3 text-cyan-400" />
+                                                        : <Check className="w-3 h-3 text-gray-500" />
+                                                    }
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </motion.div>
