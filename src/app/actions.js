@@ -1,5 +1,7 @@
 'use server'
 
+export const runtime = 'edge';
+
 import { query } from '@/lib/db'
 
 // Packages
