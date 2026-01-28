@@ -29,7 +29,6 @@ import { MoreHorizontal, Plus, Package } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 // Mock data based on the checkout page
-import { getPackages, deletePackage } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 
 export default function PackagesPage() {
@@ -42,8 +41,12 @@ export default function PackagesPage() {
         setLoading(true);
         setError(null);
         try {
-            console.log("[CLIENT] Fetching packages...");
-            const data = await getPackages();
+            console.log("[CLIENT] Fetching packages from API...");
+            const response = await fetch('/api/packages');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            const data = await response.json();
             console.log("[CLIENT] Received data:", data);
             setPackages(data || []);
         } catch (error) {
@@ -65,8 +68,18 @@ export default function PackagesPage() {
 
     const handleDelete = async (id) => {
         if (confirm('Are you sure you want to delete this package?')) {
-            await deletePackage(id);
-            fetchPackages();
+            try {
+                const response = await fetch(`/api/packages?id=${id}`, {
+                    method: 'DELETE'
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to delete package');
+                }
+                fetchPackages();
+            } catch (error) {
+                console.error('Error deleting package:', error);
+                alert('Failed to delete package');
+            }
         }
     };
     return (
