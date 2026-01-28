@@ -170,7 +170,7 @@ export default function PackagesPage() {
                                                         Copy Checkout Link
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator className="bg-white/10" />
-                                                    <DropdownMenuItem className="focus:bg-white/5 focus:text-white">Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem className="focus:bg-white/5 focus:text-white" onClick={() => router.push(`/admin/packages/${pkg.id}`)}>Edit</DropdownMenuItem>
                                                     <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400" onClick={() => handleDelete(pkg.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>

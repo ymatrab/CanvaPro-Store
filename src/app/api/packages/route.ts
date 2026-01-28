@@ -67,3 +67,30 @@ export async function DELETE(request) {
         return NextResponse.json({ error: "Database error" }, { status: 500 })
     }
 }
+
+export async function PUT(request) {
+    try {
+        // @ts-ignore
+        const db = process.env.DB
+        if (!db) {
+            return NextResponse.json({ error: "Database not available" }, { status: 500 })
+        }
+
+        const pkg = await request.json()
+        const { id, name, duration, price, original_price, savings, status, type, popular, best_value } = pkg
+
+        if (!id) {
+            return NextResponse.json({ error: "Package ID required" }, { status: 400 })
+        }
+
+        await db.prepare(
+            `UPDATE packages SET name = ?, duration = ?, price = ?, original_price = ?, savings = ?, status = ?, type = ?, popular = ?, best_value = ? WHERE id = ?`
+        ).bind(name, duration, price, original_price || null, savings || null, status || 'Active', type, popular || 0, best_value || 0, id).run()
+
+        return NextResponse.json({ success: true })
+    } catch (error) {
+        console.error("[API] PUT Error:", error)
+        return NextResponse.json({ error: "Database error" }, { status: 500 })
+    }
+}
+
