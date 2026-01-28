@@ -198,12 +198,12 @@ export default function OrdersPage() {
                                                 <SelectTrigger className={`w-32 border-0 ${getStatusColor(order.status)}`}>
                                                     <SelectValue />
                                                 </SelectTrigger>
-                                                <SelectContent className="bg-[#0f0f1a] border-white/10">
-                                                    <SelectItem value="Pending">Pending</SelectItem>
-                                                    <SelectItem value="Processing">Processing</SelectItem>
-                                                    <SelectItem value="Completed">Completed</SelectItem>
-                                                    <SelectItem value="Failed">Failed</SelectItem>
-                                                    <SelectItem value="Refunded">Refunded</SelectItem>
+                                                <SelectContent className="bg-[#0f0f1a] border-white/10 text-white">
+                                                    <SelectItem value="Pending" className="text-white focus:text-white focus:bg-white/10">Pending</SelectItem>
+                                                    <SelectItem value="Processing" className="text-white focus:text-white focus:bg-white/10">Processing</SelectItem>
+                                                    <SelectItem value="Completed" className="text-white focus:text-white focus:bg-white/10">Completed</SelectItem>
+                                                    <SelectItem value="Failed" className="text-white focus:text-white focus:bg-white/10">Failed</SelectItem>
+                                                    <SelectItem value="Refunded" className="text-white focus:text-white focus:bg-white/10">Refunded</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </TableCell>
