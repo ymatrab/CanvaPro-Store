@@ -101,13 +101,13 @@ function CheckoutContent() {
             const result = await response.json();
             setOrderId(result.id);
 
-            // If there's a payment link, redirect to it
+            // If there's a payment link, open it in new tab and stay on checkout page
             if (currentPlan.payment_link) {
-                // Open payment link in new tab and show confirmation
+                // Open payment link in new tab - user stays on checkout page to retry if needed
                 window.open(currentPlan.payment_link, '_blank');
-                setOrderComplete(true);
+                // Don't show confirmation - user can retry payment if there's an issue
             } else {
-                // No payment link, just mark as pending for manual processing
+                // No payment link, show confirmation for manual processing
                 setOrderComplete(true);
             }
         } catch (error) {
