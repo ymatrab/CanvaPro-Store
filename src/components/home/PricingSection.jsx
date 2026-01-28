@@ -39,22 +39,21 @@ export default function PricingSection() {
                 const packages = await response.json();
                 if (!packages || packages.length === 0) return;
 
+                // Filter only active packages (Active, Popular, Best Value)
+                const activeStatuses = ['Active', 'Popular', 'Best Value'];
+                const activePackages = packages.filter(p => activeStatuses.includes(p.status));
+
                 const plans = {
-                    team_invitation: packages.filter(p => p.type === 'team_invitation'),
-                    custom_email: packages.filter(p => p.type === 'custom_email')
+                    team_invitation: activePackages.filter(p => p.type === 'team_invitation'),
+                    custom_email: activePackages.filter(p => p.type === 'custom_email')
                 };
-                // Ensure correct structure if needed or just use as is if schema matches props
-                // The schema matches well (duration, price, etc.)
-                // Just mapping id to duration key if strictly needed by UI but looks like it uses plan.duration
-                // Map snake_case to camelCase specific fields if db returns snake_case but schema uses camelCase-ish names?
-                // detailed check: db cols: id, name, duration, price, original_price, savings, status, type, popular, best_value
-                // JS code expects: duration, label, price, originalPrice, savings, popular, bestValue (camelCase)
 
                 const transform = (pkgs) => pkgs.map(p => ({
                     ...p,
                     originalPrice: p.original_price,
-                    bestValue: p.best_value,
-                    label: p.duration // The DB has duration as "1 Month", JS code expects label="1 Month", duration="1_month" or unique key
+                    bestValue: p.status === 'Best Value' || p.best_value,
+                    popular: p.status === 'Popular' || p.popular,
+                    label: p.duration
                 }));
 
                 setPricingPlans({
@@ -142,60 +141,71 @@ export default function PricingSection() {
                         transition={{ duration: 0.3 }}
                         className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto"
                     >
-                        {pricingPlans[selectedMethod].map((plan, index) => (
-                            <motion.div
-                                key={plan.duration}
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                                className={`relative group ${plan.popular || plan.bestValue ? 'sm:-mt-4 sm:mb-4' : ''}`}
-                            >
-                                {/* Popular/Best Value Badge */}
-                                {(plan.popular || plan.bestValue) && (
-                                    <div className={`absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-semibold text-white shadow-lg z-10 ${plan.bestValue
-                                        ? 'bg-gradient-to-r from-amber-500 to-orange-500'
-                                        : 'bg-gradient-to-r from-violet-500 to-cyan-500'
-                                        }`}>
-                                        {plan.bestValue ? '✨ Best Value' : '🔥 Popular'}
+                        {pricingPlans[selectedMethod].length === 0 ? (
+                            <div className="col-span-full text-center py-16">
+                                <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-gray-900/80 border border-gray-700/50">
+                                    <Sparkles className="w-6 h-6 text-violet-400" />
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-white mb-1">Coming Soon</h3>
+                                        <p className="text-gray-400 text-sm">This method is not available yet. Please check back soon!</p>
                                     </div>
-                                )}
-
-                                <div className={`h-full bg-gradient-to-br from-gray-900/90 to-gray-800/50 backdrop-blur-xl rounded-3xl border transition-all duration-500 p-6 ${plan.popular || plan.bestValue
-                                    ? 'border-violet-500/50 shadow-xl shadow-violet-500/10'
-                                    : 'border-gray-700/50 hover:border-gray-600/50'
-                                    }`}>
-                                    {/* Duration */}
-                                    <div className="text-center mb-6">
-                                        <h3 className="text-lg font-semibold text-white mb-1">{plan.label}</h3>
-                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
-                                            <span className="text-green-400 text-xs font-medium">Save {plan.savings}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Price */}
-                                    <div className="text-center mb-6">
-                                        <div className="text-gray-500 text-sm line-through mb-1">${plan.originalPrice.toFixed(2)}</div>
-                                        <div className="flex items-baseline justify-center gap-1">
-                                            <span className="text-4xl font-bold text-white">${plan.price.toFixed(2)}</span>
-                                        </div>
-                                        <p className="text-gray-500 text-xs mt-1">one-time payment</p>
-                                    </div>
-
-                                    {/* CTA */}
-                                    <Link href={createPageUrl(`Checkout?method=${selectedMethod}&duration=${plan.duration}&price=${plan.price}`)}>
-                                        <Button
-                                            className={`w-full rounded-xl py-5 text-sm font-semibold transition-all duration-300 group-hover:scale-[1.02] ${plan.popular || plan.bestValue
-                                                ? 'bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white shadow-lg'
-                                                : 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700'
-                                                }`}
-                                        >
-                                            Get Started
-                                            <ArrowRight className="w-4 h-4 ml-2" />
-                                        </Button>
-                                    </Link>
                                 </div>
-                            </motion.div>
-                        ))}
+                            </div>
+                        ) : (
+                            pricingPlans[selectedMethod].map((plan, index) => (
+                                <motion.div
+                                    key={plan.duration}
+                                    initial={{ opacity: 0, y: 30 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    className={`relative group ${plan.popular || plan.bestValue ? 'sm:-mt-4 sm:mb-4' : ''}`}
+                                >
+                                    {/* Popular/Best Value Badge */}
+                                    {(plan.popular || plan.bestValue) && (
+                                        <div className={`absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-semibold text-white shadow-lg z-10 ${plan.bestValue
+                                            ? 'bg-gradient-to-r from-amber-500 to-orange-500'
+                                            : 'bg-gradient-to-r from-violet-500 to-cyan-500'
+                                            }`}>
+                                            {plan.bestValue ? '✨ Best Value' : '🔥 Popular'}
+                                        </div>
+                                    )}
+
+                                    <div className={`h-full bg-gradient-to-br from-gray-900/90 to-gray-800/50 backdrop-blur-xl rounded-3xl border transition-all duration-500 p-6 ${plan.popular || plan.bestValue
+                                        ? 'border-violet-500/50 shadow-xl shadow-violet-500/10'
+                                        : 'border-gray-700/50 hover:border-gray-600/50'
+                                        }`}>
+                                        {/* Duration */}
+                                        <div className="text-center mb-6">
+                                            <h3 className="text-lg font-semibold text-white mb-1">{plan.label}</h3>
+                                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                                                <span className="text-green-400 text-xs font-medium">Save {plan.savings}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Price */}
+                                        <div className="text-center mb-6">
+                                            <div className="text-gray-500 text-sm line-through mb-1">${plan.originalPrice.toFixed(2)}</div>
+                                            <div className="flex items-baseline justify-center gap-1">
+                                                <span className="text-4xl font-bold text-white">${plan.price.toFixed(2)}</span>
+                                            </div>
+                                            <p className="text-gray-500 text-xs mt-1">one-time payment</p>
+                                        </div>
+
+                                        {/* CTA */}
+                                        <Link href={createPageUrl(`Checkout?method=${selectedMethod}&duration=${plan.duration}&price=${plan.price}`)}>
+                                            <Button
+                                                className={`w-full rounded-xl py-5 text-sm font-semibold transition-all duration-300 group-hover:scale-[1.02] ${plan.popular || plan.bestValue
+                                                    ? 'bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white shadow-lg'
+                                                    : 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700'
+                                                    }`}
+                                            >
+                                                Get Started
+                                                <ArrowRight className="w-4 h-4 ml-2" />
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </motion.div>
+                            )))}
                     </motion.div>
                 </AnimatePresence>
 

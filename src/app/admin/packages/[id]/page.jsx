@@ -183,9 +183,9 @@ export default function EditPackagePage() {
                                     <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-900 border-gray-700">
-                                        <SelectItem value="team_invitation">Team Invitation</SelectItem>
-                                        <SelectItem value="custom_email">Custom Email</SelectItem>
+                                    <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                                        <SelectItem value="team_invitation" className="text-white focus:text-white focus:bg-white/10">Team Invitation</SelectItem>
+                                        <SelectItem value="custom_email" className="text-white focus:text-white focus:bg-white/10">Custom Email</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -196,14 +196,14 @@ export default function EditPackagePage() {
                                     <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                                         <SelectValue placeholder="Select duration" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-900 border-gray-700">
-                                        <SelectItem value="1 Month">1 Month</SelectItem>
-                                        <SelectItem value="3 Months">3 Months</SelectItem>
-                                        <SelectItem value="6 Months">6 Months</SelectItem>
-                                        <SelectItem value="12 Months">12 Months</SelectItem>
-                                        <SelectItem value="2 Years">2 Years</SelectItem>
-                                        <SelectItem value="5 Years">5 Years</SelectItem>
-                                        <SelectItem value="Lifetime">Lifetime</SelectItem>
+                                    <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                                        <SelectItem value="1 Month" className="text-white focus:text-white focus:bg-white/10">1 Month</SelectItem>
+                                        <SelectItem value="3 Months" className="text-white focus:text-white focus:bg-white/10">3 Months</SelectItem>
+                                        <SelectItem value="6 Months" className="text-white focus:text-white focus:bg-white/10">6 Months</SelectItem>
+                                        <SelectItem value="12 Months" className="text-white focus:text-white focus:bg-white/10">12 Months</SelectItem>
+                                        <SelectItem value="2 Years" className="text-white focus:text-white focus:bg-white/10">2 Years</SelectItem>
+                                        <SelectItem value="5 Years" className="text-white focus:text-white focus:bg-white/10">5 Years</SelectItem>
+                                        <SelectItem value="Lifetime" className="text-white focus:text-white focus:bg-white/10">Lifetime</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -265,10 +265,11 @@ export default function EditPackagePage() {
                                 <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-gray-900 border-gray-700">
-                                    <SelectItem value="Active">Active</SelectItem>
-                                    <SelectItem value="Best Value">Best Value</SelectItem>
-                                    <SelectItem value="Inactive">Inactive</SelectItem>
+                                <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                                    <SelectItem value="Active" className="text-white focus:text-white focus:bg-white/10">Active</SelectItem>
+                                    <SelectItem value="Popular" className="text-white focus:text-white focus:bg-white/10">Popular</SelectItem>
+                                    <SelectItem value="Best Value" className="text-white focus:text-white focus:bg-white/10">Best Value</SelectItem>
+                                    <SelectItem value="Inactive" className="text-white focus:text-white focus:bg-white/10">Inactive</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

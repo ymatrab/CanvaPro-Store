@@ -8,6 +8,7 @@ import {
     ShoppingCart,
     Star,
     User,
+    Home,
 } from "lucide-react"
 
 import {
@@ -26,6 +27,11 @@ import {
 
 // Menu items.
 const items = [
+    {
+        title: "View Site",
+        url: "/",
+        icon: Home,
+    },
     {
         title: "Overview",
         url: "/admin",
