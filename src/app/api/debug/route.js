@@ -1,18 +1,17 @@
-import { getRequestContext } from '@cloudflare/next-on-pages';
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = 'edge';
 
 export async function GET() {
     try {
-        // Check if getRequestContext works
         let contextInfo = { available: false };
         try {
-            const ctx = getRequestContext();
+            const { env } = await getCloudflareContext();
             contextInfo = {
                 available: true,
-                hasEnv: !!ctx?.env,
-                hasDB: !!ctx?.env?.DB,
-                envKeys: ctx?.env ? Object.keys(ctx.env) : []
+                hasEnv: !!env,
+                hasDB: !!env?.DB,
+                envKeys: env ? Object.keys(env) : []
             };
         } catch (e) {
             contextInfo = { available: false, error: e.message };
