@@ -84,19 +84,6 @@ function CheckoutContent() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    useEffect(() => {
-        if (typeof window !== 'undefined' && window.fbq && currentPlan) {
-            window.fbq('track', 'InitiateCheckout', {
-                content_name: currentPlan.name,
-                content_category: currentPlan.type,
-                value: currentPlan.price,
-                currency: 'USD',
-                content_ids: [currentPlan.id],
-                content_type: 'product'
-            });
-        }
-    }, [currentPlan?.id]);
-
     const handleSubmit = async () => {
         setIsSubmitting(true);
 
@@ -125,8 +112,19 @@ function CheckoutContent() {
             const result = await response.json();
             setOrderId(result.id);
 
-            // Track Purchase event
+            // Track events for Facebook Pixel
             if (window.fbq) {
+                // Track InitiateCheckout (this is what counts as "Checkout" in FB Ads Manager)
+                window.fbq('track', 'InitiateCheckout', {
+                    content_name: currentPlan.name,
+                    content_category: currentPlan.type,
+                    value: currentPlan.price,
+                    currency: 'USD',
+                    content_ids: [currentPlan.id],
+                    content_type: 'product'
+                });
+
+                // Track Purchase event
                 window.fbq('track', 'Purchase', {
                     content_name: currentPlan.name,
                     content_category: currentPlan.type,
