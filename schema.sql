@@ -40,13 +40,13 @@ CREATE TABLE orders (
 -- Seed Data for Packages
 INSERT INTO packages (id, name, duration, price, original_price, savings, status, type, popular, best_value) VALUES
 ('team_1_month', 'Team Invitation', '1 Month', 4.99, 12.99, '62%', 'Active', 'team_invitation', 0, 0),
-('team_3_months', 'Team Invitation', '3 Months', 12.99, 38.97, '67%', 'Active', 'team_invitation', 1, 0),
-('team_6_months', 'Team Invitation', '6 Months', 22.99, 77.94, '71%', 'Active', 'team_invitation', 0, 0),
-('team_12_months', 'Team Invitation', '12 Months', 39.99, 155.88, '74%', 'Best Value', 'team_invitation', 0, 1),
+('team_6_months', 'Team Invitation', '6 Months', 9.99, 77.94, '87%', 'Active', 'team_invitation', 0, 0),
+('team_12_months', 'Team Invitation', '12 Months', 14.99, 155.88, '90%', 'Active', 'team_invitation', 0, 0),
+('team_lifetime', 'Team Invitation', 'Lifetime', 19.99, 299.99, '93%', 'Popular', 'team_invitation', 1, 1),
 ('custom_1_month', 'Custom Email', '1 Month', 7.99, 12.99, '38%', 'Active', 'custom_email', 0, 0),
-('custom_3_months', 'Custom Email', '3 Months', 19.99, 38.97, '49%', 'Active', 'custom_email', 1, 0),
-('custom_6_months', 'Custom Email', '6 Months', 34.99, 77.94, '55%', 'Active', 'custom_email', 0, 0),
-('custom_12_months', 'Custom Email', '12 Months', 59.99, 155.88, '62%', 'Best Value', 'custom_email', 0, 1);
+('custom_6_months', 'Custom Email', '6 Months', 14.99, 77.94, '81%', 'Active', 'custom_email', 0, 0),
+('custom_12_months', 'Custom Email', '12 Months', 19.99, 155.88, '87%', 'Active', 'custom_email', 0, 0),
+('custom_lifetime', 'Custom Email', 'Lifetime', 24.99, 299.99, '92%', 'Popular', 'custom_email', 1, 1);
 
 -- Seed Data for Reviews
 INSERT INTO reviews (id, name, role, avatar, content, rating, status, date) VALUES
