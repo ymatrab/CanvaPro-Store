@@ -27,7 +27,9 @@ export default function HeroSection({ onGetStarted }) {
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-8"
                     >
                         <Sparkles className="w-4 h-4 text-violet-400" />
-                        <span className="text-sm text-violet-300 font-medium">Premium Canva Pro Upgrades</span>
+                        <span className="text-sm text-violet-300 font-medium">A ProPass.shop Product</span>
+                        <span className="text-gray-600">•</span>
+                        <span className="text-sm text-gray-400">Premium Canva Pro Access</span>
                     </motion.div>
 
                     {/* Main heading */}

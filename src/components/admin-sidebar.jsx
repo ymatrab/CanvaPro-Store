@@ -87,12 +87,12 @@ export function AdminSidebar({ ...props }) {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <a href="#">
-                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-cyan-500 text-white">
                                     <User className="size-4" />
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">Admin Panel</span>
-                                    <span className="truncate text-xs">CanvaPro</span>
+                                    <span className="truncate font-semibold">ProPass | Canva</span>
+                                    <span className="truncate text-xs text-gray-400">Admin Panel</span>
                                 </div>
                             </a>
                         </SidebarMenuButton>
