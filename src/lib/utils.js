@@ -7,5 +7,7 @@ export function cn(...inputs) {
 
 export function createPageUrl(pageName) {
     if (pageName === 'Home') return '/';
-    return `/${pageName.toLowerCase()}`;
+    const [path, query] = pageName.split('?');
+    const lowerPath = path.toLowerCase();
+    return query ? `/${lowerPath}?${query}` : `/${lowerPath}`;
 }

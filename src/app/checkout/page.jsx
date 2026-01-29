@@ -65,6 +65,17 @@ function CheckoutContent() {
         fetchPackages();
     }, []);
 
+    // Effect to update selectedDuration once packages are loaded if it was set via URL
+    useEffect(() => {
+        if (!loadingPackages && initialDuration) {
+            const allPackages = [...packages.team_invitation, ...packages.custom_email];
+            const matched = allPackages.find(p => p.duration.toLowerCase() === initialDuration.toLowerCase());
+            if (matched) {
+                setSelectedDuration(matched.duration);
+            }
+        }
+    }, [loadingPackages, initialDuration]);
+
     const currentPlans = packages[selectedMethod] || [];
     const currentPlan = currentPlans.find(p => p.duration === selectedDuration) || currentPlans[0];
 
@@ -209,7 +220,7 @@ function CheckoutContent() {
                         <span>Back to Home</span>
                     </Link>
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-600 to-cyan-500 flex items-center justify-center">
                             <Sparkles className="w-4 h-4 text-white" />
                         </div>
                         <span className="text-lg font-bold text-white">CanvaPro</span>
@@ -222,7 +233,7 @@ function CheckoutContent() {
                         <React.Fragment key={s}>
                             <div className={`flex items-center gap-2 ${step >= s ? 'text-white' : 'text-gray-500'}`}>
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step >= s
-                                    ? 'bg-gradient-to-r from-violet-600 to-cyan-600'
+                                    ? 'bg-gradient-to-r from-emerald-600 to-cyan-600'
                                     : 'bg-gray-800 border border-gray-700'
                                     }`}>
                                     {step > s ? <CheckCircle className="w-4 h-4" /> : s}
@@ -231,7 +242,7 @@ function CheckoutContent() {
                                     {s === 1 ? 'Select Plan' : s === 2 ? 'Your Details' : 'Payment'}
                                 </span>
                             </div>
-                            {s < 3 && <div className={`w-12 h-0.5 ${step > s ? 'bg-violet-500' : 'bg-gray-800'}`} />}
+                            {s < 3 && <div className={`w-12 h-0.5 ${step > s ? 'bg-emerald-500' : 'bg-gray-800'}`} />}
                         </React.Fragment>
                     ))}
                 </div>
@@ -262,14 +273,14 @@ function CheckoutContent() {
                                                     key={method.id}
                                                     onClick={() => setSelectedMethod(method.id)}
                                                     className={`p-4 rounded-2xl border text-left transition-all ${selectedMethod === method.id
-                                                        ? 'border-violet-500 bg-violet-500/10'
+                                                        ? 'border-emerald-500 bg-emerald-500/10'
                                                         : 'border-gray-700 hover:border-gray-600'
                                                         }`}
                                                 >
                                                     <div className="flex items-center gap-3 mb-2">
-                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedMethod === method.id ? 'bg-violet-500/20' : 'bg-gray-800'
+                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedMethod === method.id ? 'bg-emerald-500/20' : 'bg-gray-800'
                                                             }`}>
-                                                            <method.icon className={`w-5 h-5 ${selectedMethod === method.id ? 'text-violet-400' : 'text-gray-400'
+                                                            <method.icon className={`w-5 h-5 ${selectedMethod === method.id ? 'text-emerald-400' : 'text-gray-400'
                                                                 }`} />
                                                         </div>
                                                         <span className="text-white font-semibold">{method.label}</span>
@@ -298,7 +309,7 @@ function CheckoutContent() {
                                                             <Label
                                                                 htmlFor={plan.id}
                                                                 className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${selectedDuration === plan.duration
-                                                                    ? 'border-violet-500 bg-violet-500/10'
+                                                                    ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.1)]'
                                                                     : 'border-gray-700 hover:border-gray-600'
                                                                     }`}
                                                             >
@@ -316,7 +327,7 @@ function CheckoutContent() {
 
                                     <Button
                                         onClick={() => setStep(2)}
-                                        className="w-full mt-8 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white py-6 rounded-2xl text-lg"
+                                        className="w-full mt-8 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white py-6 rounded-2xl text-lg"
                                     >
                                         Continue
                                     </Button>
@@ -393,7 +404,7 @@ function CheckoutContent() {
                                         <Button
                                             onClick={() => setStep(3)}
                                             disabled={!formData.customer_email || !formData.customer_name || (selectedMethod === 'custom_email' && !formData.canva_email)}
-                                            className="flex-1 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white py-6 rounded-2xl"
+                                            className="flex-1 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white py-6 rounded-2xl"
                                         >
                                             Continue
                                         </Button>
@@ -423,11 +434,11 @@ function CheckoutContent() {
                                                         <Label
                                                             htmlFor={method.id}
                                                             className={`flex items-center gap-3 p-4 rounded-2xl border transition-all ${formData.payment_method === method.id
-                                                                ? 'border-violet-500 bg-violet-500/10'
+                                                                ? 'border-emerald-500 bg-emerald-500/10'
                                                                 : 'border-gray-700 hover:border-gray-600'
                                                                 } ${method.id === 'paypal' ? 'cursor-not-allowed hover:border-gray-700' : 'cursor-pointer'}`}
                                                         >
-                                                            <method.icon className={`w-5 h-5 ${formData.payment_method === method.id ? 'text-violet-400' : 'text-gray-400'
+                                                            <method.icon className={`w-5 h-5 ${formData.payment_method === method.id ? 'text-emerald-400' : 'text-gray-400'
                                                                 }`} />
                                                             <span className="text-white">{method.label}</span>
                                                             {method.id === 'paypal' && (
