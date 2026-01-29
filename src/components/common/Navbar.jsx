@@ -50,15 +50,12 @@ export default function Navbar() {
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center">
                                 <Sparkles className="w-5 h-5 text-white" />
                             </div>
-                            <div className="flex flex-col">
-                                <div className="flex items-center gap-1.5">
-                                    <span className="text-xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
-                                        ProPass
-                                    </span>
-                                    <span className="text-gray-500 text-lg">|</span>
-                                    <span className="text-white font-semibold">Canva</span>
-                                </div>
-                                <span className="text-[10px] text-gray-500 -mt-0.5">A ProPass.shop Product</span>
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+                                    ProPass
+                                </span>
+                                <span className="text-gray-500 text-lg">|</span>
+                                <span className="text-white font-semibold">Canva</span>
                             </div>
                         </Link>
 
