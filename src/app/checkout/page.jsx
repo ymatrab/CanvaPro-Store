@@ -73,6 +73,19 @@ function CheckoutContent() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.fbq && currentPlan) {
+            window.fbq('track', 'InitiateCheckout', {
+                content_name: currentPlan.name,
+                content_category: currentPlan.type,
+                value: currentPlan.price,
+                currency: 'USD',
+                content_ids: [currentPlan.id],
+                content_type: 'product'
+            });
+        }
+    }, [currentPlan?.id]);
+
     const handleSubmit = async () => {
         setIsSubmitting(true);
 
@@ -100,6 +113,18 @@ function CheckoutContent() {
             if (!response.ok) throw new Error('Failed to create order');
             const result = await response.json();
             setOrderId(result.id);
+
+            // Track Purchase event
+            if (window.fbq) {
+                window.fbq('track', 'Purchase', {
+                    content_name: currentPlan.name,
+                    content_category: currentPlan.type,
+                    value: currentPlan.price,
+                    currency: 'USD',
+                    content_ids: [currentPlan.id],
+                    content_type: 'product'
+                });
+            }
 
             // If there's a payment link, open it in new tab and stay on checkout page
             if (currentPlan.payment_link) {

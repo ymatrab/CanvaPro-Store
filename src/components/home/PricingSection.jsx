@@ -195,6 +195,18 @@ export default function PricingSection() {
                                         {/* CTA */}
                                         <Link href={createPageUrl(`Checkout?method=${selectedMethod}&duration=${plan.duration}&price=${plan.price}`)}>
                                             <Button
+                                                onClick={() => {
+                                                    if (window.fbq) {
+                                                        window.fbq('track', 'AddToCart', {
+                                                            content_name: plan.label,
+                                                            content_category: plan.type,
+                                                            value: plan.price,
+                                                            currency: 'USD',
+                                                            content_ids: [plan.id],
+                                                            content_type: 'product'
+                                                        });
+                                                    }
+                                                }}
                                                 className={`w-full rounded-xl py-5 text-sm font-semibold transition-all duration-300 group-hover:scale-[1.02] ${plan.popular || plan.bestValue
                                                     ? 'bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white shadow-lg'
                                                     : 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700'
