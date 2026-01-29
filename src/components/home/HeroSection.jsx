@@ -105,7 +105,7 @@ export default function HeroSection({ onGetStarted }) {
                         </div>
                         <div className="flex items-center gap-2">
                             <Shield className="w-5 h-5 text-green-400" />
-                            <span className="text-sm">100% Secure</span>
+                            <span className="text-sm">30-Day Guarantee</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Sparkles className="w-5 h-5 text-violet-400" />

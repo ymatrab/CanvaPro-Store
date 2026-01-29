@@ -91,7 +91,7 @@ export default function PricingSection() {
                         <span className="bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent"> Affordable Price</span>
                     </h2>
                     <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-8">
-                        Save up to 74% compared to official Canva Pro pricing. Choose your preferred upgrade method below.
+                        Save up to 93% compared to official Canva Pro pricing. Choose your preferred upgrade method below.
                     </p>
 
                     {/* Trust Badge */}

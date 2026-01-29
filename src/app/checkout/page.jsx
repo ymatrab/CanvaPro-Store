@@ -466,7 +466,7 @@ function CheckoutContent() {
                             <div className="space-y-3">
                                 {[
                                     { icon: Zap, text: 'Fast Delivery' },
-                                    { icon: Shield, text: 'Secure Payment' },
+                                    { icon: Shield, text: '30-Day Money Back Guarantee' },
                                     { icon: CheckCircle, text: 'Full Pro Access' }
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-center gap-2 text-sm text-gray-400">
