@@ -34,7 +34,7 @@ export default function PricingSection() {
     React.useEffect(() => {
         async function fetchPackages() {
             try {
-                const response = await fetch('/api/packages');
+                const response = await fetch('/api/packages', { cache: 'no-store' });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const packages = await response.json();
                 if (!packages || packages.length === 0) return;

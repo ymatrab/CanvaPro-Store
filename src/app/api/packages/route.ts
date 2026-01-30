@@ -15,7 +15,11 @@ export async function GET() {
 
         const { results } = await db.prepare("SELECT * FROM packages ORDER BY price ASC").all()
         console.log("[API] Fetched", results?.length || 0, "packages")
-        return NextResponse.json(results || [])
+        return NextResponse.json(results || [], {
+            headers: {
+                'Cache-Control': 'no-store, max-age=0',
+            }
+        })
     } catch (error) {
         console.error("[API] Error:", error)
         return NextResponse.json({ error: "Database error" }, { status: 500 })
